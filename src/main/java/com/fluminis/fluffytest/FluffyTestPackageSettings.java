@@ -2,8 +2,6 @@ package com.fluminis.fluffytest;
 
 import org.packagesettings.Field;
 
-import java.nio.file.Path;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class FluffyTestPackageSettings {
