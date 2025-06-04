@@ -95,6 +95,89 @@ void shouldMutateExistingObject() {
 }
 ```
 
+## Configuration
+
+👍 Thanks to [approvalTests](https://github.com/approvals/ApprovalTests.Java/) for the PackageSettings stuff.
+
+### What is configurable?
+
+Configuration of FluffyTest mainly occurs via PackageSettings.
+Currently you can configure:
+
+* ressourceFolder: default ressource folder to load file from.
+* objectMapper: default objectMapper to use
+
+### Package Level Settings
+
+FluffyTest will read the following options:
+
+```java
+public class PackageSettings {
+    public static String ressourceFolder = "org/fluminis/some";
+    public static ObjectMapper objectMapper = ...
+}
+```
+
+The default ressource folder is `scr/test/ressources`.
+
+The default objectMapper is created in `TestUtils.createObjectMapper()`
+
+### PackageLevelSettings
+
+Package Level Settings allows for programmatic setting of configuration at the package level. It follows the principle
+of least surprise.
+
+Your Package Leveling configuration must be in class called PackageSettings. The fields can be private, public and or
+static. They will be picked up regardless. All methods will be ignored.
+
+For example if you had a class:
+
+```java
+package org.packagesettings;
+
+public class PackageSettings {
+    public String name = "Llewellyn";
+    private int rating = 10;
+    public static String lastName = "Falco";
+}
+```
+
+If you where to call at the org.packagesettings level.
+
+```java
+Map<String, Settings> settings = PackageLevelSettings.get();
+```
+
+Then you would get the following settings
+
+```txt
+lastName : Falco [from org.packagesettings.PackageSettings] 
+name : Llewellyn [from org.packagesettings.PackageSettings] 
+rating : 10 [from org.packagesettings.PackageSettings]
+```
+
+However, if you also had
+
+```java
+package org.packagesettings.subpackage;
+
+public class PackageSettings {
+    public String name = "Test Name";
+    private boolean rating = true;
+    public String ratingScale = "logarithmic";
+}
+```
+
+and you ran the same code but from the org.packagesettings.subpackage  
+then you would get a blended view of the two classes where anything in the sub-package would override the parents.
+
+```txt
+lastName : Falco [from org.packagesettings.PackageSettings] 
+name : Test Name [from org.packagesettings.subpackage.PackageSettings] 
+rating : true [from org.packagesettings.subpackage.PackageSettings] 
+ratingScale : logarithmic [from org.packagesettings.subpackage.PackageSettings]
+```
+
 ## 📄 License
 
 This project is licensed under the MIT License.
