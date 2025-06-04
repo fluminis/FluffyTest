@@ -3,11 +3,17 @@ package com.fluminis.fluffytest;
 import org.openapitools.jackson.nullable.JsonNullableModule;
 import org.packagesettings.PackageLevelSettings;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.regex.Matcher;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -45,9 +51,24 @@ public final class TestUtils {
      * }</pre>
      */
     public static Reader read(String path) {
-        Path currentRelativePath = Paths.get("");
-        Path resourceFolder = currentRelativePath.resolve(PackageLevelSettings.getValueFor(FluffyTestPackageSettings.RESSOURCE_FOLDER, () ->Path.of("src/test/resources")));
-        return new FileReader(resourceFolder.resolve(path));
+        try {
+            String resourceFolder = PackageLevelSettings
+                    .getValueFor(FluffyTestPackageSettings.RESSOURCE_FOLDER, () -> "")
+                    .replaceAll("[/\\\\]", Matcher.quoteReplacement(File.separator));
+
+            String fullPath = resourceFolder.isEmpty()
+                    ? path
+                    : resourceFolder + File.separator + path;
+
+            URL resourceUrl = TestUtils.class.getClassLoader().getResource(fullPath);
+            if (resourceUrl == null) {
+                throw new RuntimeException("Could not read " + path);
+            }
+
+            return new FileReader(Paths.get(resourceUrl.toURI()));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
