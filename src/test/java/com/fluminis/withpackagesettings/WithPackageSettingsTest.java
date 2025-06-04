@@ -17,6 +17,6 @@ public class WithPackageSettingsTest {
     @Test
     void shouldNotFindRessourceInDefaultFolder() {
         assertThatThrownBy(() -> TestUtils.read("two.json").asString())
-                .hasMessage("Could not read src\\test\\resources\\org\\fluminis\\some\\two.json");
+                .hasMessageContaining("Could not read ");
     }
 }

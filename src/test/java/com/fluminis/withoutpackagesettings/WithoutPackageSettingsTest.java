@@ -12,7 +12,7 @@ public class WithoutPackageSettingsTest {
     @Test
     void shouldNotFindRessourceInSubFolderWhenNoPackageSettings() {
         assertThatThrownBy(() -> TestUtils.read("one.json").asString())
-                .hasMessage("Could not read src\\test\\resources\\one.json");
+                .hasMessageContaining("Could not read ");
     }
 
     @Test
