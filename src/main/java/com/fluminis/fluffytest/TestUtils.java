@@ -4,6 +4,7 @@ import org.openapitools.jackson.nullable.JsonNullableModule;
 import org.packagesettings.PackageLevelSettings;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -44,7 +45,9 @@ public final class TestUtils {
      * }</pre>
      */
     public static Reader read(String path) {
-        return new FileReader(PackageLevelSettings.getValueFor(FluffyTestPackageSettings.RESSOURCE_FOLDER, () ->Path.of("src/test/resources")).resolve(path));
+        Path currentRelativePath = Paths.get("");
+        Path resourceFolder = currentRelativePath.resolve(PackageLevelSettings.getValueFor(FluffyTestPackageSettings.RESSOURCE_FOLDER, () ->Path.of("src/test/resources")));
+        return new FileReader(resourceFolder.resolve(path));
     }
 
     /**
