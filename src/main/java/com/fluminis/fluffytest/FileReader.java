@@ -24,7 +24,6 @@ public class FileReader implements Reader {
 
     FileReader(Path path) {
         this.path = path;
-        this.objectMapper = PackageLevelSettings.getValueFor(FluffyTestPackageSettings.OBJECT_MAPPER, TestUtils::createObjectMapper);
     }
 
     public FileReader withObjectMapper(ObjectMapper mapper) {
@@ -38,7 +37,7 @@ public class FileReader implements Reader {
     }
 
     public FileReader mutate(BiConsumer<JsonNode, ObjectMapper> mutator) {
-        mutator.accept(asJsonNode(), objectMapper);
+        mutator.accept(asJsonNode(), getObjectMapper());
         return this;
     }
 
@@ -54,17 +53,17 @@ public class FileReader implements Reader {
     }
 
     public <T> T asObject(Class<T> clazz) {
-        return objectMapper.convertValue(asJsonNode(), clazz);
+        return getObjectMapper().convertValue(asJsonNode(), clazz);
     }
 
     public <T> T asObject(TypeReference<T> typeReference) {
-        return objectMapper.convertValue(asJsonNode(), typeReference);
+        return getObjectMapper().convertValue(asJsonNode(), typeReference);
     }
 
     public <T extends JsonNode> T asJsonNode() {
         if (root == null) {
             try {
-                root = objectMapper.readTree(asString());
+                root = getObjectMapper().readTree(asString());
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
@@ -72,4 +71,10 @@ public class FileReader implements Reader {
         return (T) root;
     }
 
+    private ObjectMapper getObjectMapper() {
+        if (objectMapper == null) {
+            this.objectMapper = PackageLevelSettings.getValueFor(FluffyTestPackageSettings.OBJECT_MAPPER, TestUtils::createObjectMapper);
+        }
+        return objectMapper;
+    }
 }

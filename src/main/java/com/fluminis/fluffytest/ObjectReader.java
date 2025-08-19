@@ -20,7 +20,6 @@ public class ObjectReader implements Reader {
 
     ObjectReader(Object object) {
         this.object = object;
-        this.objectMapper = PackageLevelSettings.getValueFor(FluffyTestPackageSettings.OBJECT_MAPPER, TestUtils::createObjectMapper);
     }
 
     public ObjectReader withObjectMapper(ObjectMapper mapper) {
@@ -34,14 +33,14 @@ public class ObjectReader implements Reader {
     }
 
     public ObjectReader mutate(BiConsumer<JsonNode, ObjectMapper> mutator) {
-        mutator.accept(asJsonNode(), objectMapper);
+        mutator.accept(asJsonNode(), getObjectMapper());
         return this;
     }
 
     public String asString() {
         if (content == null) {
             try {
-                content = objectMapper.writeValueAsString(object);
+                content = getObjectMapper().writeValueAsString(object);
             } catch (IOException e) {
                 throw new RuntimeException(String.format("Could serialize object: %s", object), e);
             }
@@ -50,26 +49,33 @@ public class ObjectReader implements Reader {
     }
 
     public <T> T asObject(Class<T> clazz) {
-        return objectMapper.convertValue(asJsonNode(), clazz);
+        return getObjectMapper().convertValue(asJsonNode(), clazz);
     }
 
     public <T> T asObject(TypeReference<T> typeReference) {
-        return objectMapper.convertValue(asJsonNode(), typeReference);
+        return getObjectMapper().convertValue(asJsonNode(), typeReference);
     }
 
     public <T extends JsonNode> T asJsonNode() {
         if (root == null) {
             if (content == null) {
-                root = objectMapper.valueToTree(object);
+                root = getObjectMapper().valueToTree(object);
             } else {
                 try {
-                    root = objectMapper.readTree(asString());
+                    root = getObjectMapper().readTree(asString());
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
                 }
             }
         }
         return (T) root;
+    }
+
+    private ObjectMapper getObjectMapper() {
+        if (objectMapper == null) {
+            this.objectMapper = PackageLevelSettings.getValueFor(FluffyTestPackageSettings.OBJECT_MAPPER, TestUtils::createObjectMapper);
+        }
+        return objectMapper;
     }
 
 }
