@@ -13,7 +13,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.jupiter.version>6.1.0</junit.jupiter.version>
         <assertj.version>3.27.7</assertj.version>
-        <jackson.version>2.22.0</jackson.version>
+        <jackson.version>2.22.1</jackson.version>
         <jackson-databind-nullable.version>0.2.9</jackson-databind-nullable.version>
     </properties>
 
